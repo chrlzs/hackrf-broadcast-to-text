@@ -86,10 +86,10 @@ hackrf_transfer -r test.raw -f 155355000 -s 2000000 -g 40 -l 40 -n 2000000
 
 -n 2000000: Capture 2 million samples.
 
-
 Check the Output File:
 
 ```bash
 ls -lh test.raw
 ```
 
+# **Real-Time Audio Processing Pipeline**

@@ -3,7 +3,7 @@ Capture radio broadcasts using HackRF, decode signals, and convert speech to tex
 
 # radio-text-capture
 
-# **instructions to set up and use a HackRF in WSL2.  **
+# **instructions to set up and use a HackRF in WSL2**
 
 ## **HackRF Setup in WSL2**  
 

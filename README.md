@@ -68,24 +68,28 @@ Part ID Number: 0xa000cb3c 0x00784f64
 ```
 
 ## **4. Test HackRF**  
+
+Capture a Signal:
+
 To record RF data:  
 ```bash
-hackrf_transfer -r test.raw -s 10e6
+hackrf_transfer -r test.raw -f 155355000 -s 2000000 -g 40 -l 40 -n 2000000
 ```
 
-## **5. Install GNURadio (Optional for GUI Workflows)**  
+-r test.raw: Save the raw IQ data to test.raw.
+
+-f 155355000: Tune to 155.355 MHz.
+
+-s 2000000: Set the sample rate to 2 MS/s.
+
+-g 40 and -l 40: Set the gain levels.
+
+-n 2000000: Capture 2 million samples.
+
+
+Check the Output File:
+
 ```bash
-sudo apt install gnuradio
-gnuradio-companion
+ls -lh test.raw
 ```
-
-## **Troubleshooting**  
-- If HackRF isn’t detected, ensure USB passthrough is enabled:  
-  ```powershell
-  usbipd.exe attach --wsl --busid <BusID>
-  ```
-- If permission errors occur:  
-  ```bash
-  sudo chmod 666 /dev/hackrf*
-  ```
 

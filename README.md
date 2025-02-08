@@ -39,16 +39,15 @@ GUID                                  DEVICE
    ```powershell
    usbipd bind --busid 2-3
    ```
-
+3. Attach HackRF to WSL2 (**replace `2-3` with actual BusID**):  
+   ```powershell
+   usbipd.exe attach --wsl --busid 2-3
+   ```
+   
    ```powershell
    usbipd: info: Using WSL distribution 'Ubuntu' to attach; the device will be available in all WSL 2 distributions.
    usbipd: info: Detected networking mode 'nat'.
    usbipd: info: Using IP address 172.23.144.1 to reach the host.
-   ```
-
-3. Attach HackRF to WSL2 (**replace `2-3` with actual BusID**):  
-   ```powershell
-   usbipd.exe attach --wsl --busid 2-3
    ```
 
 ## **3. Verify HackRF in WSL**  

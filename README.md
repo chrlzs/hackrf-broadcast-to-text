@@ -100,4 +100,6 @@ charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx ensurepath
 
 charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx install vosk
 
+## **Troubleshooting**
+
 

@@ -93,3 +93,11 @@ ls -lh test.raw
 ```
 
 # **Real-Time Audio Processing Pipeline**
+
+charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ sudo apt install pipx
+
+charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx ensurepath
+
+charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx install vosk
+
+

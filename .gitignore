@@ -173,3 +173,5 @@ cython_debug/
 #large audio files
 .raw
 .wav
+
+myenv/

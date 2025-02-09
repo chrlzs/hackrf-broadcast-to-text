@@ -18,7 +18,7 @@ class TopBlock(gr.top_block):
         self.osmo_source.set_if_gain(40)
         self.osmo_source.set_bb_gain(40)
 
-        # Rational Resampler (optional, adjust sample rate if needed)
+        # Rational Resampler (adjust sample rate if needed)
         self.resampler = filter.rational_resampler_ccf(
             interpolation=48,
             decimation=200,
@@ -33,7 +33,13 @@ class TopBlock(gr.top_block):
         self.audio_sink = audio.sink(48000, "pulse", True)
 
         # TCP Sink (stream audio data to Python script)
-        self.tcp_sink = network.tcp_sink(4, 1, "127.0.0.1", 12345, 1)
+        self.tcp_sink = network.tcp_sink(
+            itemsize=gr.sizeof_float,  # Size of each item (float)
+            veclen=1,                 # Vector length (1 for scalar)
+            host="127.0.0.1",         # Host IP address
+            port=tcp_port,            # TCP port
+            sinkmode=1,               # Server mode (1 for server)
+        )
 
         # UDP Sink (alternative to TCP)
         if udp_port:

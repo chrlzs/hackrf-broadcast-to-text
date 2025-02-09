@@ -112,4 +112,10 @@ sudo fuser -v /dev/hackrf*
                      charlie    8973 F.... python3
 ```
 
+```bash
+
 sudo kill -9 8973
+
+```
+
+

@@ -105,6 +105,17 @@ charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx ensurepath
 
 charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx install vosk
 
+# **Receiving Audio Data in Python**
+
+1.) Install PortAudio (Required for pyaudio):
+```bash
+sudo apt update
+sudo apt install portaudio19-dev python3-pyaudio
+```
+2.) Verify Installation:
+```bash
+sudo apt install portaudio19-dev python3-pyaudio
+```
 ## **Troubleshooting**
 
 RuntimeError: Failed to open HackRF device (-1000) Resource busy

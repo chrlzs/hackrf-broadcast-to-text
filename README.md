@@ -116,7 +116,21 @@ sudo apt install portaudio19-dev python3-pyaudio
 ```bash
 sudo apt install portaudio19-dev python3-pyaudio
 ```
-## **Troubleshooting**
+
+## **Install Vosk**
+```bash
+sudo apt update 
+
+sudo apt install python3-pip python3-dev
+
+sudo pip3 install vosk --break-system-packages #TODO: Handle this more gracefully
+
+python3 -m pip show vosk
+
+
+```
+
+# **Troubleshooting**
 
 RuntimeError: Failed to open HackRF device (-1000) Resource busy
 

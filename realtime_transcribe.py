@@ -41,4 +41,7 @@ def main():
             print(partial_result)  # Print partial results (interim transcriptions)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nTranscription stopped.")

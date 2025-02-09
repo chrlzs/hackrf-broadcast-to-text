@@ -82,9 +82,9 @@ hackrf_transfer -r test.raw -f 155355000 -s 2000000 -g 40 -l 40 -n 2000000
 
 -s 2000000: Set the sample rate to 2 MS/s.
 
--g 40 and -l 40: Set the gain levels.
+-g 40 and -l 40: Set the gain levels. //Issue: Low Volume - Adjust the gain settings 
 
--n 2000000: Capture 2 million samples.
+-n 2000000: Capture 2 million samples. //Issue: High Latency -  Reduce the buffer size in the TCP/UDP sink block.
 
 Check the Output File:
 

@@ -62,7 +62,7 @@ def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="FM Demodulation with HackRF")
     parser.add_argument("-f", "--frequency", type=float, required=True, help="Frequency in Hz (e.g., 155355000)")
-    parser.add_argument("-s", "--sample-rate", type=float, default=2000000, help="Sample rate in Hz (default: 2 MS/s)")
+    parser.add_argument("-s", "--sample-rate", type=float, default=1000000, help="Sample rate in Hz (default: 1 MS/s)")
     parser.add_argument("-t", "--tcp-port", type=int, required=True, help="TCP port for streaming audio data")
     parser.add_argument("-u", "--udp-port", type=int, help="UDP port for streaming audio data")
     args = parser.parse_args()

@@ -92,6 +92,11 @@ Check the Output File:
 ls -lh test.raw
 ```
 
+To start a TCP listener:
+```bash
+nc -lvp 12345
+```
+
 # **Real-Time Audio Processing Pipeline**
 
 charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ sudo apt install pipx

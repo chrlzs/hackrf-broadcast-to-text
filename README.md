@@ -102,4 +102,14 @@ charlie@ZENTRAL:/mnt/d/source/hackrf-broadcast-to-text$ pipx install vosk
 
 ## **Troubleshooting**
 
+RuntimeError: Failed to open HackRF device (-1000) Resource busy
 
+sudo fuser -v /dev/hackrf*
+
+```bash
+                     USER        PID ACCESS COMMAND
+/dev/bus/usb/001/002:
+                     charlie    8973 F.... python3
+```
+
+sudo kill -9 8973

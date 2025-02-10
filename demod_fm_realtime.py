@@ -14,9 +14,9 @@ class TopBlock(gr.top_block):
         self.osmo_source = osmosdr.source()
         self.osmo_source.set_sample_rate(sample_rate)
         self.osmo_source.set_center_freq(frequency)
-        self.osmo_source.set_gain(40)
-        self.osmo_source.set_if_gain(40)
-        self.osmo_source.set_bb_gain(40)
+        self.osmo_source.set_gain(rf_gain)          # RF gain (LNA)
+        self.osmo_source.set_if_gain(if_gain)       # IF gain (VGA)
+        self.osmo_source.set_bb_gain(0)             # BB gain (set to 0)
 
         # Rational Resampler (adjust sample rate if needed)
         self.resampler = filter.rational_resampler_ccf(
@@ -62,9 +62,10 @@ def main():
     # Parse command-line arguments
     parser = argparse.ArgumentParser(description="FM Demodulation with HackRF")
     parser.add_argument("-f", "--frequency", type=float, required=True, help="Frequency in Hz (e.g., 155355000)")
-    parser.add_argument("-s", "--sample-rate", type=float, default=1000000, help="Sample rate in Hz (default: 1 MS/s)")
-    parser.add_argument("-t", "--tcp-port", type=int, required=True, help="TCP port for streaming audio data")
-    parser.add_argument("-u", "--udp-port", type=int, help="UDP port for streaming audio data")
+    parser.add_argument("-s", "--sample-rate", type=float, default=225000, help="Sample rate in Hz (default: 225 kHz)")
+    parser.add_argument("-a", "--audio-rate", type=int, default=48000, help="Audio sample rate in Hz (default: 48 kHz)")
+    parser.add_argument("--rf-gain", type=float, default=16, help="RF gain in dB (default: 16 dB)")
+    parser.add_argument("--if-gain", type=float, default=22, help="IF gain in dB (default: 22 dB)")
     args = parser.parse_args()
 
     # Create and run the flowgraph
@@ -74,3 +75,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+

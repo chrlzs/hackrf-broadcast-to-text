@@ -127,7 +127,17 @@ sudo pip3 install vosk --break-system-packages #TODO: Handle this more gracefull
 
 python3 -m pip show vosk
 
+```
 
+Demodulate FM real-time:
+
+```bash
+$ python3 demod_fm_realtime.py -f 155355000 -t 12345
+```
+
+Real-time transscription
+```bash
+$ python3 realtime_transcribe.pyReal-time
 ```
 
 # **Troubleshooting**

@@ -132,7 +132,7 @@ python3 -m pip show vosk
 Demodulate FM real-time:
 
 ```bash
-$ python3 demod_fm_realtime.py -f 155355000 -t 12345
+$ python3 demod_fm_realtime.py -f 155355000 --rf-gain 16 --if-gain 22 -t 12345
 ```
 
 Real-time transscription

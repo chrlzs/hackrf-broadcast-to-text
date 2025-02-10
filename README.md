@@ -158,4 +158,16 @@ sudo kill -9 8973
 
 ```
 
+---
 
+```bash
+
+OSError: [Errno 98] Address already in use
+
+```
+
+sudo netstat -tulnp | grep 12345
+
+sudo kill -9 1158
+
+```

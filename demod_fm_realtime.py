@@ -19,7 +19,7 @@ class TopBlock(gr.top_block):
         self.osmo_source.set_bb_gain(0)             # BB gain (set to 0)
 
         # Rational Resampler (adjust sample rate if needed)
-        self.resampler = blocks.rational_resampler_ccf(
+        self.resampler = filter.rational_resampler_ccf(
             interpolation=1,
             decimation=8,  # Adjust based on your input sample rate
             taps=[],

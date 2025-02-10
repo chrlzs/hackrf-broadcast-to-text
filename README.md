@@ -137,7 +137,7 @@ $ python3 demod_fm_realtime.py -f 155355000 --rf-gain 16 --if-gain 22 -t 12345
 
 Real-time transscription
 ```bash
-$ python3 realtime_transcribe.pyReal-time
+$ python3 realtime_transcribe.py
 ```
 
 # **Troubleshooting**

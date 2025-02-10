@@ -7,7 +7,7 @@ import osmosdr
 import argparse
 
 class TopBlock(gr.top_block):
-    def __init__(self, frequency, sample_rate, tcp_port, udp_port=None):
+    def __init__(self, frequency, sample_rate, audio_rate, rf_gain, if_gain, tcp_port):
         gr.top_block.__init__(self, "Top Block")
 
         # Osmocom Source (supports HackRF)
@@ -19,7 +19,7 @@ class TopBlock(gr.top_block):
         self.osmo_source.set_bb_gain(0)             # BB gain (set to 0)
 
         # Rational Resampler (adjust sample rate if needed)
-        self.resampler = filter.rational_resampler_ccf(
+        self.resampler = blocks.rational_resampler_ccf(
             interpolation=48,
             decimation=200,
             taps=[],
@@ -30,7 +30,7 @@ class TopBlock(gr.top_block):
         self.quad_demod = analog.quadrature_demod_cf(1.0)
 
         # Audio Sink (optional, for debugging)
-        self.audio_sink = audio.sink(48000, "pulse", True)
+        self.audio_sink = audio.sink(audio_rate, "pulse", True)
 
         # TCP Sink (stream audio data to Python script)
         self.tcp_sink = network.tcp_sink(
@@ -41,21 +41,9 @@ class TopBlock(gr.top_block):
             sinkmode=1,               # Server mode (1 for server)
         )
 
-        # UDP Sink (alternative to TCP)
-        if udp_port:
-            self.udp_sink = network.udp_sink(
-                itemsize=gr.sizeof_float,
-                host="127.0.0.1",
-                port=udp_port,
-                payload_size=1472,
-                eof=True,
-            )
-
         # Connect the blocks
         self.connect(self.osmo_source, self.resampler, self.quad_demod)
         self.connect(self.quad_demod, self.tcp_sink)
-        if udp_port:
-            self.connect(self.quad_demod, self.udp_sink)
         self.connect(self.quad_demod, self.audio_sink)  # Optional, for debugging
 
 def main():
@@ -66,14 +54,13 @@ def main():
     parser.add_argument("-a", "--audio-rate", type=int, default=48000, help="Audio sample rate in Hz (default: 48 kHz)")
     parser.add_argument("--rf-gain", type=float, default=16, help="RF gain in dB (default: 16 dB)")
     parser.add_argument("--if-gain", type=float, default=22, help="IF gain in dB (default: 22 dB)")
+    parser.add_argument("-t", "--tcp-port", type=int, required=True, help="TCP port for streaming audio data")
     args = parser.parse_args()
 
     # Create and run the flowgraph
-    tb = TopBlock(args.frequency, args.sample_rate, args.tcp_port, args.udp_port)
+    tb = TopBlock(args.frequency, args.sample_rate, args.audio_rate, args.rf_gain, args.if_gain, args.tcp_port)
     tb.start()
     tb.wait()
 
 if __name__ == "__main__":
     main()
-
-

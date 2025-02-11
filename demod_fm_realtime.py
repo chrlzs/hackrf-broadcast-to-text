@@ -21,17 +21,17 @@ class TopBlock(gr.top_block):
         # Rational Resampler (adjust sample rate if needed)
         self.resampler = filter.rational_resampler_ccf(
             interpolation=1,
-            decimation=8,  # Adjust based on your input sample rate
+            decimation=int(sample_rate / audio_rate),  # Downsample to audio rate
             taps=[],
             fractional_bw=0.4,
         )
 
         # Quadrature Demodulator (FM demodulation)
         #self.quad_demod = analog.quadrature_demod_cf(1.0)
-        self.quad_demod = analog.quadrature_demod_cf(0.5)  # Adjust the gain as needed
+        self.quad_demod = analog.quadrature_demod_cf(0.25)  # Adjust the gain as needed
 
         # Audio Sink (optional, for debugging)
-        self.audio_sink = audio.sink(48000, "pulse", True)
+        self.audio_sink = audio.sink(audio_rate, "pulse", True)
 
         # TCP Sink (stream audio data to Python script)
         self.tcp_sink = network.tcp_sink(

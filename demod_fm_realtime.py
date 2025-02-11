@@ -21,14 +21,19 @@ class TopBlock(gr.top_block):
         # Rational Resampler (adjust sample rate if needed)
         self.resampler = filter.rational_resampler_ccf(
             interpolation=1,
-            decimation=int(sample_rate / audio_rate),  # Downsample to audio rate
+            decimation=5,  # Adjusted decimation
             taps=[],
             fractional_bw=0.4,
         )
 
         # Quadrature Demodulator (FM demodulation)
-        #self.quad_demod = analog.quadrature_demod_cf(1.0)
-        self.quad_demod = analog.quadrature_demod_cf(0.25)  # Adjust the gain as needed
+        self.quad_demod = analog.quadrature_demod_cf(0.25)  # Start with 0.25 and adjust
+
+        # Low-Pass Filter (clean up audio)
+        self.low_pass_filter = filter.fir_filter_fff(
+            1,  # Decimation factor (1 for no decimation)
+            firdes.low_pass(1.0, audio_rate, 15000, 5000)  # Filter taps
+        )
 
         # Audio Sink (optional, for debugging)
         self.audio_sink = audio.sink(audio_rate, "pulse", True)
@@ -44,8 +49,9 @@ class TopBlock(gr.top_block):
 
         # Connect the blocks
         self.connect(self.osmo_source, self.resampler, self.quad_demod)
-        self.connect(self.quad_demod, self.tcp_sink)
-        self.connect(self.quad_demod, self.audio_sink)  # Optional, for debugging
+        self.connect(self.quad_demod, self.low_pass_filter)
+        self.connect(self.low_pass_filter, self.tcp_sink)
+        self.connect(self.low_pass_filter, self.audio_sink)  # Optional, for debugging
 
 def main():
     # Parse command-line arguments
@@ -65,5 +71,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

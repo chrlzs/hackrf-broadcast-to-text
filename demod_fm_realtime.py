@@ -27,12 +27,11 @@ class TopBlock(gr.top_block):
         )
 
         # Quadrature Demodulator (FM demodulation)
-        self.quad_demod = analog.quadrature_demod_cf(0.25)  # Start with 0.25 and adjust
-
+        self.quad_demod = analog.quadrature_demod_cf(0.20)  
         # Low-Pass Filter (clean up audio)
         self.low_pass_filter = filter.fir_filter_fff(
             1,  # Decimation factor (1 for no decimation)
-            firdes.low_pass(1.0, audio_rate, 15000, 5000)  # Filter taps
+            firdes.low_pass(1.0, audio_rate, 12500, 2500)  # Default window
         )
 
         # Audio Sink (optional, for debugging)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from gnuradio import gr, blocks, analog, audio, network, filter
+from gnuradio import gr, blocks, analog, audio, network, filter, qtgui
 from gnuradio.eng_arg import eng_float
 from gnuradio.filter import firdes
 import osmosdr
@@ -27,7 +27,11 @@ class TopBlock(gr.top_block):
         )
 
         # Quadrature Demodulator (FM demodulation)
-        self.quad_demod = analog.quadrature_demod_cf(0.20)  
+        self.quad_demod = analog.quadrature_demod_cf(0.20)  # Adjusted gain
+
+        # DC Blocker (remove DC offset)
+        self.dc_blocker = filter.dc_blocker_ff(32, True)
+
         # Low-Pass Filter (clean up audio)
         self.low_pass_filter = filter.fir_filter_fff(
             1,  # Decimation factor (1 for no decimation)
@@ -48,7 +52,8 @@ class TopBlock(gr.top_block):
 
         # Connect the blocks
         self.connect(self.osmo_source, self.resampler, self.quad_demod)
-        self.connect(self.quad_demod, self.low_pass_filter)
+        self.connect(self.quad_demod, self.dc_blocker)
+        self.connect(self.dc_blocker, self.low_pass_filter)
         self.connect(self.low_pass_filter, self.tcp_sink)
         self.connect(self.low_pass_filter, self.audio_sink)  # Optional, for debugging
 

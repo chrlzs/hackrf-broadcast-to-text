@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from gnuradio import gr, blocks, analog, audio, network, filter, qtgui
+from gnuradio import gr, blocks, analog, audio, network, filter
 from gnuradio.eng_arg import eng_float
 from gnuradio.filter import firdes
 import osmosdr
@@ -27,10 +27,22 @@ class TopBlock(gr.top_block):
         )
 
         # Quadrature Demodulator (FM demodulation)
-        self.quad_demod = analog.quadrature_demod_cf(0.20)  # Adjusted gain
+        self.quad_demod = analog.quadrature_demod_cf(0.18)  # Adjusted gain
 
         # DC Blocker (remove DC offset)
         self.dc_blocker = filter.dc_blocker_ff(32, True)
+
+        # Band-Pass Filter (remove out-of-band noise)
+        self.band_pass_filter = filter.fir_filter_fff(
+            1,  # Decimation factor (1 for no decimation)
+            firdes.band_pass(
+                1.0,               # Gain
+                audio_rate,        # Sample rate (48 kHz)
+                300,               # Low cutoff frequency (300 Hz)
+                3000,              # High cutoff frequency (3 kHz)
+                500,               # Transition bandwidth (500 Hz)
+            )
+        )
 
         # Low-Pass Filter (clean up audio)
         self.low_pass_filter = filter.fir_filter_fff(
@@ -53,7 +65,8 @@ class TopBlock(gr.top_block):
         # Connect the blocks
         self.connect(self.osmo_source, self.resampler, self.quad_demod)
         self.connect(self.quad_demod, self.dc_blocker)
-        self.connect(self.dc_blocker, self.low_pass_filter)
+        self.connect(self.dc_blocker, self.band_pass_filter)
+        self.connect(self.band_pass_filter, self.low_pass_filter)
         self.connect(self.low_pass_filter, self.tcp_sink)
         self.connect(self.low_pass_filter, self.audio_sink)  # Optional, for debugging
 
@@ -63,8 +76,8 @@ def main():
     parser.add_argument("-f", "--frequency", type=float, required=True, help="Frequency in Hz (e.g., 155355000)")
     parser.add_argument("-s", "--sample-rate", type=float, default=225000, help="Sample rate in Hz (default: 225 kHz)")
     parser.add_argument("-a", "--audio-rate", type=int, default=48000, help="Audio sample rate in Hz (default: 48 kHz)")
-    parser.add_argument("--rf-gain", type=float, default=16, help="RF gain in dB (default: 16 dB)")
-    parser.add_argument("--if-gain", type=float, default=22, help="IF gain in dB (default: 22 dB)")
+    parser.add_argument("--rf-gain", type=float, default=14, help="RF gain in dB (default: 14 dB)")
+    parser.add_argument("--if-gain", type=float, default=20, help="IF gain in dB (default: 20 dB)")
     parser.add_argument("-t", "--tcp-port", type=int, required=True, help="TCP port for streaming audio data")
     args = parser.parse_args()
 

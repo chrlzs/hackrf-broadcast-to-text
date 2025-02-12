@@ -16,72 +16,95 @@ class TopBlock(gr.top_block):
         self.osmo_source.set_center_freq(frequency)
         self.osmo_source.set_gain(rf_gain)          # RF gain (LNA)
         self.osmo_source.set_if_gain(if_gain)       # IF gain (VGA)
-        self.osmo_source.set_bb_gain(0)             # BB gain (set to 0)
+        self.osmo_source.set_bb_gain(20)            # Increased BB gain for better signal
 
-        # Rational Resampler (adjust sample rate if needed)
+        # Add AGC block for better signal levels
+        self.agc = analog.agc_cc(1e-3, 1.0, 1.0)
+        self.agc.set_max_gain(65536)
+
+        # Rational Resampler (adjusted for better audio quality)
         self.resampler = filter.rational_resampler_ccf(
             interpolation=1,
-            decimation=5,  # Adjusted decimation
-            taps=[],
+            decimation=int(sample_rate / 48000),  # Dynamic decimation based on sample rate
+            taps=firdes.low_pass(1.0, sample_rate, 12500, 1500),
             fractional_bw=0.4,
         )
 
-        # Quadrature Demodulator (FM demodulation)
-        self.quad_demod = analog.quadrature_demod_cf(0.18)  # Adjusted gain
+        # Quadrature Demodulator (adjusted for NFM)
+        quad_demod_gain = 0.225  # Adjusted for narrow-band FM
+        self.quad_demod = analog.quadrature_demod_cf(quad_demod_gain)
 
-        # DC Blocker (remove DC offset)
-        self.dc_blocker = filter.dc_blocker_ff(32, True)
+        # DC Blocker (improved parameters)
+        self.dc_blocker = filter.dc_blocker_ff(64, True)  # Increased length for better DC removal
 
-        # Band-Pass Filter (remove out-of-band noise)
+        # Band-Pass Filter (adjusted for voice frequencies)
         self.band_pass_filter = filter.fir_filter_fff(
-            1,  # Decimation factor (1 for no decimation)
+            1,
             firdes.band_pass(
-                1.0,               # Gain
-                audio_rate,        # Sample rate (48 kHz)
-                300,               # Low cutoff frequency (300 Hz)
-                3000,              # High cutoff frequency (3 kHz)
-                500,               # Transition bandwidth (500 Hz)
+                2.0,               # Increased gain
+                audio_rate,        
+                250,              # Slightly lower low cutoff
+                3500,             # Slightly higher high cutoff
+                400               # Narrower transition
             )
         )
 
-        # Low-Pass Filter (clean up audio)
+        # Low-Pass Filter (adjusted for NFM bandwidth)
         self.low_pass_filter = filter.fir_filter_fff(
-            1,  # Decimation factor (1 for no decimation)
-            firdes.low_pass(1.0, audio_rate, 12500, 2500)  # Default window
+            1,
+            firdes.low_pass(
+                2.0,               # Increased gain
+                audio_rate,
+                5000,             # Adjusted cutoff for NFM
+                1500              # Narrower transition
+            )
         )
 
-        # Audio Sink (optional, for debugging)
+        # Add squelch block
+        self.squelch = analog.pwr_squelch_ff(
+            -50,           # Threshold in dB
+            0.01,         # Alpha (attack/decay)
+            0,            # Ramp
+            True          # Gate
+        )
+
+        # Volume control (multiply constant)
+        self.volume = blocks.multiply_const_ff(1.5)  # Boost volume slightly
+
+        # Audio Sink
         self.audio_sink = audio.sink(audio_rate, "pulse", True)
 
-        # TCP Sink (stream audio data to Python script)
+        # TCP Sink
         self.tcp_sink = network.tcp_sink(
-            itemsize=gr.sizeof_float,  # Size of each item (float)
-            veclen=1,                 # Vector length (1 for scalar)
-            host="127.0.0.1",         # Host IP address
-            port=tcp_port,            # TCP port
-            sinkmode=1,               # Server mode (1 for server)
+            itemsize=gr.sizeof_float,
+            veclen=1,
+            host="127.0.0.1",
+            port=tcp_port,
+            sinkmode=1,
         )
 
-        # Connect the blocks
-        self.connect(self.osmo_source, self.resampler, self.quad_demod)
+        # Connect the blocks with new AGC and squelch
+        self.connect(self.osmo_source, self.agc)
+        self.connect(self.agc, self.resampler)
+        self.connect(self.resampler, self.quad_demod)
         self.connect(self.quad_demod, self.dc_blocker)
         self.connect(self.dc_blocker, self.band_pass_filter)
         self.connect(self.band_pass_filter, self.low_pass_filter)
-        self.connect(self.low_pass_filter, self.tcp_sink)
-        self.connect(self.low_pass_filter, self.audio_sink)  # Optional, for debugging
+        self.connect(self.low_pass_filter, self.squelch)
+        self.connect(self.squelch, self.volume)
+        self.connect(self.volume, self.tcp_sink)
+        self.connect(self.volume, self.audio_sink)
 
 def main():
-    # Parse command-line arguments
     parser = argparse.ArgumentParser(description="FM Demodulation with HackRF")
     parser.add_argument("-f", "--frequency", type=float, required=True, help="Frequency in Hz (e.g., 155355000)")
     parser.add_argument("-s", "--sample-rate", type=float, default=225000, help="Sample rate in Hz (default: 225 kHz)")
     parser.add_argument("-a", "--audio-rate", type=int, default=48000, help="Audio sample rate in Hz (default: 48 kHz)")
-    parser.add_argument("--rf-gain", type=float, default=14, help="RF gain in dB (default: 14 dB)")
-    parser.add_argument("--if-gain", type=float, default=20, help="IF gain in dB (default: 20 dB)")
+    parser.add_argument("--rf-gain", type=float, default=16, help="RF gain in dB (default: 16 dB)")  # Matched to your SDR# settings
+    parser.add_argument("--if-gain", type=float, default=22, help="IF gain in dB (default: 22 dB)")  # Matched to your SDR# settings
     parser.add_argument("-t", "--tcp-port", type=int, required=True, help="TCP port for streaming audio data")
     args = parser.parse_args()
 
-    # Create and run the flowgraph
     tb = TopBlock(args.frequency, args.sample_rate, args.audio_rate, args.rf_gain, args.if_gain, args.tcp_port)
     tb.start()
     tb.wait()
